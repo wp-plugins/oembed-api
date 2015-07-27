@@ -1,0 +1,19 @@
+{
+  "name": "swissspidy/oembed-api",
+  "description": "An oEmbed provider for WordPress using the WP-API plugin.",
+  "version": "0.1.0",
+  "type": "wordpress-plugin",
+  "license": "GPL-2.0+",
+  "require": {
+    "composer/installers": "~1.0"
+  },
+  "require-dev": {
+    "phpmd/phpmd": "@stable",
+    "wp-coding-standards/wpcs": "dev-develop",
+    "sebastian/phpcpd": "*"
+  },
+  "scripts": {
+    "post-install-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs",
+    "post-update-cmd": "\"vendor/bin/phpcs\" --config-set installed_paths vendor/wp-coding-standards/wpcs"
+  }
+}
