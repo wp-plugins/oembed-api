@@ -33,8 +33,6 @@ class WP_API_oEmbed_Endppoint {
 				),
 			),
 		) );
-
-		add_filter( 'rest_pre_serve_request', array( $this, 'rest_pre_serve_request' ), 10, 4 );
 	}
 
 	/**
@@ -112,88 +110,9 @@ class WP_API_oEmbed_Endppoint {
 			'type'          => 'rich',
 			'width'         => $width,
 			'height'        => $height,
-			'html'          => $this->get_oembed_html( $post, $width, $height ),
+			'html'          => get_post_embed_html( $post, $width, $height ),
 		) );
 
 		return $data;
-	}
-
-	/**
-	 * Get the HTML output for the oEmbed response.
-	 *
-	 * @param WP_Post $post   The current post object.
-	 * @param int     $width  The width for the response.
-	 * @param int     $height The height for the response.
-	 *
-	 * @return string
-	 */
-	protected function get_oembed_html( $post, $width, $height ) {
-		$embed_url = get_post_embed_url( $post );
-
-		$output = sprintf(
-			'<iframe sandbox="" security="restricted" src="%1$s" width="%2$d" height="%3$d" frameborder="0" marginwidth="0" marginheight="0" scrolling="no"></iframe>',
-			esc_url( $embed_url ),
-			$width,
-			$height
-		);
-
-		/**
-		 * Filters the oEmbed HTML output.
-		 *
-		 * @param string  $output The default HTML.
-		 * @param WP_Post $post   Current post object.
-		 * @param int     $width  Width of the response.
-		 * @param int     $height Height of the response.
-		 */
-		$output = apply_filters( 'rest_oembed_html', $output, $post, $width, $height );
-
-		return $output;
-	}
-
-	/**
-	 * Hooks into the REST API output to print XML instead of JSON.
-	 *
-	 * @param bool                      $served  Whether the request has already been served.
-	 * @param WP_HTTP_ResponseInterface $result  Result to send to the client. Usually a WP_REST_Response.
-	 * @param WP_REST_Request           $request Request used to generate the response.
-	 * @param WP_REST_Server            $server  Server instance.
-	 *
-	 * @return bool
-	 */
-	public function rest_pre_serve_request( $served, $result, $request, $server ) {
-		$params = $request->get_params();
-
-		if ( '/wp/v2/oembed' !== $request->get_route() || ! 'xml' === $params['format'] ) {
-			return $served;
-		}
-
-		if ( 'HEAD' === $request->get_method() ) {
-			return $served;
-		}
-
-		if ( ! headers_sent() ) {
-			$server->send_header( 'Content-Type', 'text/xml; charset=' . get_option( 'blog_charset' ) );
-		}
-
-		// Embed links inside the request.
-		$result = $server->response_to_data( $result, false );
-
-		$oembed = new SimpleXMLElement( '<oembed></oembed>' );
-		foreach ( $result as $key => $value ) {
-			if ( is_array( $value ) ) {
-				$element = $oembed->addChild( $key );
-
-				foreach ( $value as $k => $v ) {
-					$element->addChild( $k, $v );
-				}
-
-				continue;
-			}
-
-			$oembed->addChild( $key, $value );
-		}
-		echo $oembed->asXML();
-
-		return $served = true;
 	}
 }
