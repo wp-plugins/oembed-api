@@ -84,10 +84,10 @@ class WP_API_oEmbed_Plugin {
 	}
 
 	/**
-	 * Add our rewrite endpoint to permalinks.
+	 * Add our rewrite endpoint to permalinks and pages.
 	 */
 	public function add_rewrite_endpoint() {
-		add_rewrite_endpoint( 'embed', EP_PERMALINK );
+		add_rewrite_endpoint( 'embed', EP_PERMALINK | EP_PAGES );
 	}
 
 	/**
@@ -125,7 +125,7 @@ class WP_API_oEmbed_Plugin {
 	public function rest_pre_serve_request( $served, $result, $request, $server ) {
 		$params = $request->get_params();
 
-		if ( '/wp/v2/oembed' !== $request->get_route() || ! 'xml' === $params['format'] ) {
+		if ( '/wp/v2/oembed' !== $request->get_route() || 'xml' !== $params['format'] ) {
 			return $served;
 		}
 
