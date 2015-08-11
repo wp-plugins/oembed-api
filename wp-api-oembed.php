@@ -3,7 +3,7 @@
  * Plugin Name: oEmbed API
  * Plugin URI:  https://github.com/swissspidy/oEmbed-API
  * Description: An oEmbed provider for WordPress using the WP-API plugin.
- * Version:     0.2.0-20150811
+ * Version:     0.3.0-20150811
  * Author:      Pascal Birchler
  * Author URI:  https://spinpress.com
  * License:     GPLv2+
