@@ -37,7 +37,10 @@ class WP_API_oEmbed_Test_Frontend extends WP_API_oEmbed_TestCase {
 	 * Test output of add_oembed_discovery_links.
 	 */
 	function test_add_oembed_discovery_links_non_singular() {
-		$this->assertEquals( '', $this->class->add_oembed_discovery_links() );
+		ob_start();
+		$this->class->add_oembed_discovery_links();
+		$actual = ob_get_clean();
+		$this->assertEquals( '', $actual );
 	}
 
 	/**
@@ -79,6 +82,9 @@ class WP_API_oEmbed_Test_Frontend extends WP_API_oEmbed_TestCase {
 		$this->assertEquals( '<iframe sandbox="allow-scripts" security="restricted"></iframe>', $actual );
 	}
 
+	/**
+	 * Test that only 1 iframe is allowed, nothing else.
+	 */
 	function test_filter_oembed_result_multiple_tags() {
 		$html   = '<div><iframe></iframe><iframe></iframe><p></p></div>';
 		$actual = $this->class->filter_oembed_result( $html, '' );
@@ -86,12 +92,15 @@ class WP_API_oEmbed_Test_Frontend extends WP_API_oEmbed_TestCase {
 		$this->assertEquals( '<iframe sandbox="allow-scripts" security="restricted"></iframe>', $actual );
 	}
 
-	function test_filter_oembed_result_password() {
+	/**
+	 * Test if the secret is appended to the URL.
+	 */
+	function test_filter_oembed_result_secret() {
 		$html   = '<iframe src="https://wordpress.org"></iframe>';
 		$actual = $this->class->filter_oembed_result( $html, '' );
 
 		$matches = array();
-		preg_match( '|src="https://wordpress.org#\?messagesecret=([\w\d]+)" data-password="([\w\d]+)"|', $actual, $matches );
+		preg_match( '|src="https://wordpress.org#\?secret=([\w\d]+)" data-secret="([\w\d]+)"|', $actual, $matches );
 
 		$this->assertTrue( isset( $matches[1] ) );
 		$this->assertTrue( isset( $matches[2] ) );
